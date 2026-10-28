@@ -1,0 +1,28 @@
+# dsh-qqbot-guard 插件注册行（组合包 patch 层）
+# 用户可在自己的 profile cordis.patch.yml 中用相同 id 覆盖 config
+- id: qqbot-guard
+  name: dsh-qqbot-guard
+  config:
+    health:
+      # 深度健康检查：HTTP 状态接口（Bot 网关状态 或 OneBot /get_status）
+      endpoint: http://127.0.0.1:3001/api/state
+      intervalMs: 120000
+      timeoutMs: 8000
+      maxFailures: 2
+    rescue:
+      # 残留进程名（Windows 不含 .exe；Unix 为进程名）
+      processName: QQ
+      # 重启命令（数组形式，用你的启动器）
+      command:
+        - powershell.exe
+        - -NoProfile
+        - -ExecutionPolicy
+        - Bypass
+        - -File
+        - D:\path\to\restart-qq-gateway.ps1
+      retWaitMs: 3000
+      restartWaitMs: 25000
+      # 救援冷却：一次动手后 15 分钟内绝不再动手（给快速登录/扫码留时间）
+      cooldownMs: 900000
+      # 状态持久化目录（防抖计数 + 上次救援时间，重启 DSH 不丢）
+      stateDir: ~/.dsh/dsh-qqbot-guard
